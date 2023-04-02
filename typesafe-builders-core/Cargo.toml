@@ -8,5 +8,3 @@ license.workspace = true
 repository.workspace = true
 description.workspace = true
 readme.workspace = true
-
-[dependencies]
