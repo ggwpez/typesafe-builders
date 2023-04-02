@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+
+members = [
+	"typesafe-builders",
+	"typesafe-builders-core",
+	"typesafe-builders-derive",
+]
