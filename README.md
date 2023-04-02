@@ -9,7 +9,7 @@
     <img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg" alt="License: GPL v3">
   </a>
   <a href="https://crates.io/crates/typesafe-builders">
-    <img src="https://img.shields.io/crates/v/proc-macro-warning"/>
+    <img src="https://img.shields.io/crates/v/typesafe-builders"/>
   </a>
 </p>
 
