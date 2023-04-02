@@ -1,0 +1,6 @@
+Do the file changes and stage them, then:
+
+```bash
+cargo workspaces version --no-git-push
+cargo publish -p typesafe-builders-derive && cargo publish -p typesafe-builders-core && cargo publish -p typesafe-builders
+```

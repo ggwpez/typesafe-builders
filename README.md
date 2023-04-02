@@ -74,4 +74,4 @@ impl Builder<true, true> {
 # TODOS
 
 - [ ] Code quality is horrible 🙈
-- [ ] Add optional truly fields.
+- [ ] Add optional fields.
