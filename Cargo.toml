@@ -1,10 +1,11 @@
 [workspace.package]
 edition = "2021"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Oliver Tale-Yazdi <oliver@tasty.limo>"]
 license = "GPL-3.0-only"
 repository = "https://github.com/ggwpez/typesafe-builders"
 description = "Infallible compile-time checked builders for your structs."
+readme = "README.md"
 
 [workspace]
 resolver = "2"
@@ -16,5 +17,5 @@ members = [
 ]
 
 [workspace.dependencies]
-typesafe-builders-core = { path = "typesafe-builders-core", version = "0.1.1" }
-typesafe-builders-derive = { path = "typesafe-builders-derive", version = "0.1.1" }
+typesafe-builders-core = { path = "typesafe-builders-core", version = "0.1.2" }
+typesafe-builders-derive = { path = "typesafe-builders-derive", version = "0.1.2" }
