@@ -19,6 +19,7 @@ No more worrying whether the `build` call on your builder will return `Ok` or no
 
 ```rust
 fn example() {
+	use typesafe_builders::prelude::*;
 	#[derive(Builder)]
 	struct Point {
 		x: u8,
@@ -30,9 +31,10 @@ fn example() {
 	// These do not compile:
 	// partial.with_x(8);
 	// partial.build();
-	
-	// Infallibly construct an instance:
-	let result = partial.with_y(8).build();
+
+	// Set all fields to enable the `build` function:
+	let complete = partial.with_y(8);
+	let result = complete.build();
 
 	assert_eq!(result.x, 5);
 	assert_eq!(result.y, 8);
@@ -44,7 +46,6 @@ fn example() {
 Const generic one-hot bitfields. What you get is similar to this:
 
 ```rust
-
 pub struct Builder<const x_set: bool, const y_set: bool> {
 	x: Option<u8>,
 	y: Option<u8>,

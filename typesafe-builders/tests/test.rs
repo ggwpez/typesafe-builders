@@ -1,9 +1,8 @@
 #![cfg(test)]
 
-use typesafe_builders::prelude::*;
-
 #[test]
 fn example() {
+	use typesafe_builders::prelude::*;
 	#[derive(Builder)]
 	struct Point {
 		x: u8,
@@ -16,8 +15,9 @@ fn example() {
 	// partial.with_x(8);
 	// partial.build();
 
-	// Infallibly construct an instance:
-	let result = partial.with_y(8).build();
+	// Set all fields to enable the `build` function:
+	let complete = partial.with_y(8);
+	let result = complete.build();
 
 	assert_eq!(result.x, 5);
 	assert_eq!(result.y, 8);
