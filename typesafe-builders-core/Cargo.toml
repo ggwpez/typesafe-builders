@@ -8,3 +8,9 @@ license.workspace = true
 repository.workspace = true
 description.workspace = true
 readme.workspace = true
+
+[dependencies]
+derive-syn-parse = "0.1.5"
+derive_more = "0.99.17"
+quote = "1.0.26"
+syn = "2.0.13"

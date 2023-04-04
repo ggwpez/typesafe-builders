@@ -1,22 +1,23 @@
 #![cfg(test)]
+use typesafe_builders::prelude::*;
 
 #[test]
 fn example() {
-	use typesafe_builders::prelude::*;
 	#[derive(Builder)]
 	struct Point {
+		#[optional]
 		x: u8,
 		y: u8,
 	}
 
 	let builder = Point::builder();
-	let partial = builder.with_x(5);
+	let partial = builder.x(5);
 	// These do not compile:
-	// partial.with_x(8);
+	// partial.x(8);
 	// partial.build();
 
 	// Set all fields to enable the `build` function:
-	let complete = partial.with_y(8);
+	let complete = partial.y(8);
 	let result = complete.build();
 
 	assert_eq!(result.x, 5);

@@ -15,3 +15,5 @@ proc-macro = true
 [dependencies]
 quote = "1.0.26"
 syn = "2.0.13"
+
+typesafe-builders-core = { path = "../typesafe-builders-core" }
