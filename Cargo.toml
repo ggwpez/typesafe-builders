@@ -6,6 +6,7 @@ license = "GPL-3.0-only"
 repository = "https://github.com/ggwpez/typesafe-builders"
 description = "Infallible compile-time checked builders for your structs."
 readme = "README.md"
+keywords = ["macros"]
 
 [workspace]
 resolver = "2"
