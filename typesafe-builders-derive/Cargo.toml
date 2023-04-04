@@ -14,7 +14,7 @@ keywords.workspace = true
 proc-macro = true
 
 [dependencies]
+typesafe-builders-core.workspace = true
+
 quote.workspace = true
 syn.workspace = true
-
-typesafe-builders-core = { path = "../typesafe-builders-core" }
