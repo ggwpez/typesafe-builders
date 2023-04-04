@@ -19,27 +19,33 @@ No more worrying whether the `build` call on your builder will return `Ok` or no
 
 ```rust
 fn example() {
-	use typesafe_builders::prelude::*;
 	#[derive(Builder)]
 	struct Point {
 		x: u8,
 		y: u8,
+		#[optional]
+		z: Option<u8>,
 	}
 
 	let builder = Point::builder();
-	let partial = builder.with_x(5);
+	let partial = builder.x(5);
 	// These do not compile:
-	// partial.with_x(8);
-	// partial.build();
+	// partial.x(6); 		// `x` is already set
+	// partial.build();		// `y` is not set
 
-	// Set all fields to enable the `build` function:
-	let complete = partial.with_y(8);
+	// Set all required fields to enable the `build` function:
+	let complete = partial.y(8);
 	let result = complete.build();
 
 	assert_eq!(result.x, 5);
 	assert_eq!(result.y, 8);
+	assert_eq!(result.z, None);
 }
 ```
+
+## Field Attributes
+
+- `#[optional]` - WIP: to be changed to `builder(optional)` to prevent name clashes.
 
 # How does it work?
 
@@ -74,4 +80,4 @@ impl Builder<true, true> {
 # TODOS
 
 - [ ] Code quality is horrible 🙈
-- [ ] Add optional fields.
+- [x] Add optional fields.
