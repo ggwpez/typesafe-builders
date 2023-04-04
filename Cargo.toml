@@ -1,6 +1,6 @@
 [workspace.package]
 edition = "2021"
-version = "0.1.3"
+version = "0.2.0"
 authors = ["Oliver Tale-Yazdi <oliver@tasty.limo>"]
 license = "GPL-3.0-only"
 repository = "https://github.com/ggwpez/typesafe-builders"
@@ -19,8 +19,8 @@ members = [
 
 [workspace.dependencies]
 # Internal deps
-typesafe-builders-core = { path = "typesafe-builders-core", version = "0.1.3" }
-typesafe-builders-derive = { path = "typesafe-builders-derive", version = "0.1.3" }
+typesafe-builders-core = { path = "typesafe-builders-core", version = "0.2.0" }
+typesafe-builders-derive = { path = "typesafe-builders-derive", version = "0.2.0" }
 
 # External deps
 derive-syn-parse = { version = "0.1.5", default-features = false }
