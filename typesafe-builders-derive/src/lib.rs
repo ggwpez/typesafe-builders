@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: Oliver Tale-Yazdi <oliver@tasty.limo>
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 //! Exports the `#[derive(Builder)]` attribute macro.
 //!
 //! There is nothing else going on here - the implementation is in `typesafe-builders-core` since
