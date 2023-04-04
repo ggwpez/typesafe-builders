@@ -1,4 +1,4 @@
-Do the file changes and stage them, then:
+Without any un-staged changes:
 
 ```bash
 cargo workspaces version --no-git-push
