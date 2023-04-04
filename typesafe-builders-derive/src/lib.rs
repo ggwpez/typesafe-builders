@@ -19,5 +19,8 @@ use proc_macro::TokenStream;
 #[proc_macro_derive(Builder, attributes(optional))]
 pub fn derive_builder(stream: TokenStream) -> TokenStream {
 	let ast = syn::parse_macro_input!(stream as syn::DeriveInput);
-	typesafe_builders_core::impl_derive_builder(&ast).unwrap()
+	let ts2 = typesafe_builders_core::impl_derive_builder(&ast);
+
+	// The magical part: convert the proc macro error to a compiler error:
+	ts2.unwrap_or_else(syn::Error::into_compile_error).into()
 }
