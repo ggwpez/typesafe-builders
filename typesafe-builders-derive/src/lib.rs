@@ -16,7 +16,7 @@ use proc_macro::TokenStream;
 /// # Attributes
 ///
 /// - `#[optional]` - Mark a field as optional. This is the default if the type is an `Option`.
-#[proc_macro_derive(Builder, attributes(optional))]
+#[proc_macro_derive(Builder, attributes(builder))]
 pub fn derive_builder(stream: TokenStream) -> TokenStream {
 	let ast = syn::parse_macro_input!(stream as syn::DeriveInput);
 	let ts2 = typesafe_builders_core::impl_derive_builder(&ast);

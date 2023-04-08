@@ -13,3 +13,6 @@ keywords.workspace = true
 [dependencies]
 typesafe-builders-core.workspace = true
 typesafe-builders-derive.workspace = true
+
+[dev-dependencies]
+trybuild = "1.0.80"

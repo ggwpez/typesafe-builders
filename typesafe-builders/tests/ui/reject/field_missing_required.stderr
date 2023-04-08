@@ -1,0 +1,11 @@
+error[E0599]: no method named `build` found for struct `GenericStructBuilder<false>` in the current scope
+ --> tests/ui/reject/field_missing_required.rs:9:20
+  |
+3 | #[derive(Builder)]
+  |          ------- method `build` not found for this struct
+...
+9 |     Struct::builder().build();
+  |                       ^^^^^ method not found in `GenericStructBuilder<false>`
+  |
+  = note: the method was found for
+          - `GenericStructBuilder<true>`

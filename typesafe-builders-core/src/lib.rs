@@ -5,7 +5,7 @@
 
 #![allow(non_upper_case_globals)]
 
-use quote::{quote, ToTokens};
+use quote::{quote};
 use syn::spanned::Spanned;
 
 pub type FieldAttrs = std::collections::HashMap<FieldAttrId, FieldAttrVal>;
@@ -18,7 +18,10 @@ pub struct FieldAttr {
 
 #[derive(Debug, Eq, Hash, PartialEq)]
 pub enum FieldAttrId {
+	/// A field *can*, but does not *have* to be set.
 	Optional,
+	/// A field *must* be set directly in the `builder` constructor.
+	Constructor,
 }
 
 #[derive(Debug, Eq, Hash, PartialEq)]
@@ -30,8 +33,12 @@ pub enum FieldAttrVal {
 	Override(bool),
 }
 
-pub trait BuilderFactory<Builder> {
-	fn builder() -> Builder;
+#[derive(derive_syn_parse::Parse)]
+struct ParsedFieldAttr {
+	id: syn::Ident,
+	_t: Option<syn::Token![=]>,
+	#[parse_if(_t.is_some())]
+	val: Option<syn::LitBool>,
 }
 
 pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
@@ -44,43 +51,57 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 
 	let vis = ast.vis.clone();
 	let name = &ast.ident;
-	let builder_ident = syn::Ident::new(&format!("{}Builder", name), name.span());
+	let builder_ident = syn::Ident::new(&format!("Generic{}Builder", name), name.span());
 
 	let (mut builder_field_names, mut builder_field_types, mut builder_fields) =
 		(vec![], vec![], vec![]);
+	let mut builder_field_assignments = vec![];
 	let mut builder_const_generics = vec![];
 	let mut builder_const_generics_all_unset = vec![];
 	let mut builder_const_generics_all_set = vec![];
 
 	// The dont-cares for optional fields:
-	let mut builder_optional_generics = vec![];
-	let mut builder_optional_generic_values = vec![];
+	let mut builder_builder_func_generics = vec![];
+	let mut build_function_generic_values = vec![];
+
+	let mut constructor_arg_names = vec![];
+	let mut constructor_args = vec![];
 
 	let mut setters = vec![];
 	for (i, field) in s.fields.iter().enumerate() {
+		let field_name = field.ident.clone().unwrap();
+		let field_type = &field.ty;
 		let field_attrs = extract_attributes(&field)?;
-		let optional = is_optional(field, &field_attrs);
 
-		if optional {
-			let field_name = syn::Ident::new(
+		if is_ctor(&field_attrs) {
+			constructor_args.push(quote! {#field_name: #field_type});
+			constructor_arg_names.push(field_name.clone());
+		}
+		
+		if is_optional(&field_attrs) {
+			let setter_name = syn::Ident::new(
 				&format!("{}_set", field.ident.clone().unwrap()).to_uppercase(),
 				field.ident.span(),
 			);
-			builder_optional_generics.push(quote! { const #field_name: bool });
-			builder_optional_generic_values.push(quote! { #field_name });
+			builder_builder_func_generics.push(quote! { const #setter_name: bool });
+			build_function_generic_values.push(quote! { #setter_name });
+			builder_field_assignments.push(quote! {#field_name: self.#field_name.unwrap_or_default()});
 		} else {
-			builder_optional_generic_values.push(quote! { true });
+			build_function_generic_values.push(quote! { true });
+			builder_field_assignments.push(quote! {#field_name: self.#field_name.unwrap() });
 		}
 
-		let field_name = field.ident.clone().unwrap();
-		let field_type = &field.ty;
 		builder_field_names.push(field_name.clone());
 		builder_field_types.push(field_type.clone());
 		builder_fields.push(quote! { #field_name: Option<#field_type> });
 		let const_generic_name =
 			syn::Ident::new(&format!("{}_set", field_name).to_uppercase(), field_name.span());
 		builder_const_generics.push(quote! { const #const_generic_name: bool });
-		builder_const_generics_all_unset.push(quote! { false });
+		if is_ctor(&field_attrs) {
+			builder_const_generics_all_unset.push(quote! { true });
+		} else {
+			builder_const_generics_all_unset.push(quote! { false });
+		}
 		builder_const_generics_all_set.push(quote! { true });
 
 		let setter_name = syn::Ident::new(&format!("{}", field_name), field_name.span());
@@ -119,22 +140,12 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
         });
 	}
 	let build_fn = quote! {
-		// The `build` that requires all to be set. This one is always implemented.
-		/*impl #builder_ident<#(#builder_const_generics_all_set),*> {
+		impl<#(#builder_builder_func_generics),*> #builder_ident<#(#build_function_generic_values),*> {
+			/// Infallible build the instance.
 			#[allow(dead_code)]
 			pub fn build(self) -> #name {
 				#name {
-					#(#builder_field_names: self.#builder_field_names.unwrap()),*
-				}
-			}
-		}*/
-
-		// The `build` that is available as soon as all mandatory fields are set.
-		impl<#(#builder_optional_generics),*> #builder_ident<#(#builder_optional_generic_values),*> {
-			#[allow(dead_code)]
-			pub fn build(self) -> #name {
-				#name {
-					#(#builder_field_names: self.#builder_field_names.unwrap_or_default()),*
+					#(#builder_field_assignments),*
 				}
 			}
 		}
@@ -148,19 +159,36 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 		}
 	};
 
+	let default_builder_name = syn::Ident::new(
+		&format!("{}Builder", name.to_string()),
+		name.span(),
+	);
+
+	let default_builder_type = quote! {
+		#vis type #default_builder_name = #builder_ident<#(#builder_const_generics_all_unset),*>;
+	};
+
 	let builder = quote! {
 		#builder_struct
+
+		#default_builder_type
 
 		#(#setters)*
 		#build_fn
 	};
 
+	// Remove all constructor args from builder_field_names
+	for field in constructor_arg_names.iter() {
+		builder_field_names.retain(|x| x != field);
+	}
+
 	let gen = quote! {
-		impl ::typesafe_builders::prelude::BuilderFactory<#builder_ident<#(#builder_const_generics_all_unset),*>> for #name {
+		impl #name {
 			#[allow(dead_code)]
-			fn builder() -> #builder_ident<#(#builder_const_generics_all_unset),*> {
+			fn builder(#(#constructor_args),*) -> #builder_ident<#(#builder_const_generics_all_unset),*> {
 				#builder_ident {
-					#(#builder_field_names: None),*
+					#(#builder_field_names: None,)*
+					#(#constructor_arg_names: Some(#constructor_arg_names),)*
 				}
 			}
 		}
@@ -176,85 +204,76 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 fn extract_attributes(field: &syn::Field) -> Result<FieldAttrs, syn::Error> {
 	let mut field_attrs = FieldAttrs::new();
 
-	for attr in field.attrs.iter() {
-		let fattr: FieldAttr = attr.try_into()?;
-		if field_attrs.contains_key(&fattr.id) {
-			return Err(syn::Error::new_spanned(attr, "Duplicate attribute on struct field"))
+	for raw_attr in field.attrs.iter() {
+		let attr: FieldAttr = parse_builder_attribute(raw_attr)?;
+		if field_attrs.contains_key(&attr.id) {
+			return Err(syn::Error::new_spanned(raw_attr, "Duplicate attribute on struct field"))
 		}
-		field_attrs.insert(fattr.id, fattr.val);
+		field_attrs.insert(attr.id, attr.val);
+	}
+
+	if is_optional(&field_attrs) && is_ctor(&field_attrs) {
+		return Err(syn::Error::new_spanned(field, "Optional fields cannot be in the constructor"));
 	}
 
 	Ok(field_attrs)
 }
 
-fn is_optional(_field: &syn::Field, attrs: &FieldAttrs) -> bool {
+fn parse_builder_attribute(attr: &syn::Attribute) -> Result<FieldAttr, syn::Error> {
+	match &attr.meta {
+		syn::Meta::List(syn::MetaList{path, tokens, ..}) => {
+			let spath = path_to_string(path);
+			if spath != "builder" {
+				return Err(syn::Error::new_spanned(attr, format!("Expected attribute `builder`, got {}", spath)));
+			}
+
+			let attr = syn::parse2::<ParsedFieldAttr>(tokens.clone())?;
+			let id: FieldAttrId = attr.id.try_into()?;
+			let val = attr.val.map(|v| v.value).unwrap_or(true);
+
+			Ok(FieldAttr {
+				id,
+				val: FieldAttrVal::Override(val),
+			})
+		},
+		_ => {
+			return Err(syn::Error::new_spanned(attr, "Expected builder attribute to be a list"))
+		}
+	}
+}
+
+/// Whether a field is optional.
+fn is_optional(attrs: &FieldAttrs) -> bool {
 	match attrs.get(&FieldAttrId::Optional).unwrap_or(&FieldAttrVal::Inherit) {
 		FieldAttrVal::Override(o) => *o,
 		FieldAttrVal::Inherit => false,
 	}
 }
 
-impl TryFrom<&syn::Attribute> for FieldAttr {
+/// Whether a field needs to be set in the constructor `builder` function.
+fn is_ctor(attrs: &FieldAttrs) -> bool {
+	match attrs.get(&FieldAttrId::Constructor).unwrap_or(&FieldAttrVal::Inherit) {
+		FieldAttrVal::Override(o) => *o,
+		FieldAttrVal::Inherit => false,
+	}
+}
+
+impl TryFrom<syn::Ident> for FieldAttrId {
 	type Error = syn::Error;
 
-	fn try_from(attr: &syn::Attribute) -> Result<Self, Self::Error> {
-		match &attr.meta {
-			// Single paths are treated as `true`:
-			syn::Meta::Path(ref path) => {
-				let id = path.get_ident().ok_or_else(|| {
-					syn::Error::new(
-						path.span(),
-						format!(
-							"Expected identifier for field attribute: {}",
-							path.to_token_stream().to_string()
-						),
-					)
-				})?;
-
-				Ok(FieldAttr { id: FieldAttrId::try_from(id)?, val: FieldAttrVal::Override(true) })
-			},
-			syn::Meta::NameValue(syn::MetaNameValue { path, value, .. }) => {
-				let id = path.get_ident().ok_or_else(|| {
-					syn::Error::new(
-						path.span(),
-						format!(
-							"Expected identifier for field attribute: {}",
-							path.to_token_stream().to_string()
-						),
-					)
-				})?;
-
-				let val = match value {
-					syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Bool(b), .. }) =>
-						FieldAttrVal::Override(b.value),
-					_ =>
-						return Err(syn::Error::new(
-							value.span(),
-							format!(
-								"Expected boolean value for field attribute: {}, but got: {}",
-								path.to_token_stream().to_string(),
-								value.to_token_stream().to_string()
-							),
-						)),
-				};
-
-				Ok(FieldAttr { id: FieldAttrId::try_from(id)?, val })
-			},
-			_ => Err(syn::Error::new(
-				attr.span(),
-				"Expected field attribute to be a path or name-value pair",
-			)),
+	fn try_from(ident: syn::Ident) -> Result<Self, Self::Error> {
+		match ident.to_string().as_str() {
+			"optional" => Ok(FieldAttrId::Optional),
+			"constructor" => Ok(FieldAttrId::Constructor),
+			e => Err(syn::Error::new(ident.span(), format!("Unknown field attribute: {:?}", e))),			
 		}
 	}
 }
 
-impl TryFrom<&syn::Ident> for FieldAttrId {
-	type Error = syn::Error;
-
-	fn try_from(ident: &syn::Ident) -> Result<Self, Self::Error> {
-		match ident.to_string().as_str() {
-			"optional" => Ok(FieldAttrId::Optional),
-			e => Err(syn::Error::new(ident.span(), format!("Unknown field attribute: {:?}", e))),
-		}
-	}
+fn path_to_string(p: &syn::Path) -> String {
+	p.segments
+		.iter()
+		.map(|s| s.ident.to_string())
+		.collect::<Vec<_>>()
+		.join("")
 }

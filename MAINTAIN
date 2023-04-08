@@ -2,5 +2,5 @@ Without any un-staged changes:
 
 ```bash
 cargo workspaces version --no-git-push
-cargo publish -p typesafe-builders-derive && cargo publish -p typesafe-builders-core && cargo publish -p typesafe-builders
+cargo publish -p typesafe-builders-core && cargo publish -p typesafe-builders-derive && cargo publish -p typesafe-builders
 ```

@@ -1,0 +1,10 @@
+error[E0599]: no method named `x` found for struct `GenericStructBuilder<true>` in the current scope
+  --> tests/ui/reject/field_set_constructor.rs:10:29
+   |
+3  | #[derive(Builder)]
+   |          ------- method `x` not found for this struct
+...
+10 |     let r = Struct::builder(2).x(3).build();
+   |                                ^--- help: remove the arguments
+   |                                |
+   |                                field, not a method

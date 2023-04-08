@@ -1,0 +1,27 @@
+error[E0753]: expected outer doc comment
+ --> tests/ui/reject/field_missing_required_2.rs:3:1
+  |
+3 |   //! `Option` is *not* treated as optional.
+  |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+6 | / struct Struct {
+7 | |     x: Option<u8>,
+8 | | }
+  | |_- the inner doc comment doesn't annotate this struct
+  |
+help: to annotate the struct, change the doc comment from inner to outer style
+  |
+3 | /// `Option` is *not* treated as optional.
+  |   ~
+
+error[E0599]: no method named `build` found for struct `GenericStructBuilder<false>` in the current scope
+  --> tests/ui/reject/field_missing_required_2.rs:11:20
+   |
+5  | #[derive(Builder)]
+   |          ------- method `build` not found for this struct
+...
+11 |     Struct::builder().build();
+   |                       ^^^^^ method not found in `GenericStructBuilder<false>`
+   |
+   = note: the method was found for
+           - `GenericStructBuilder<true>`

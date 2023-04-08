@@ -1,0 +1,5 @@
+error: Unknown field attribute: "yikes"
+ --> tests/ui/reject/field_attr_unknown.rs:5:12
+  |
+5 |     #[builder(yikes)]
+  |               ^^^^^

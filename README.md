@@ -80,4 +80,8 @@ impl Builder<true, true> {
 # TODOS
 
 - [ ] Code quality is horrible 🙈
-- [x] Add optional fields.
+- [x] Add `optional` fields.
+- [ ] Add `rename` field attribute.
+- [ ] Add `in_constructor` or something like this to have mandatory args directly in the `builder` function.
+- [ ] Add `Into` or whatever to cast types.
+- [ ] Add way to pass options as `Some` automatically.
