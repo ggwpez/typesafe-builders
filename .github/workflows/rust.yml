@@ -26,32 +26,17 @@ jobs:
     - name: Format
       run: cargo fmt --all -- --check
 
-    - uses: actions-rs/cargo@v1
-      name: Build
-      with:
-        command: build
-        args: --locked --release --all-targets --all-features
+    - name: Build
+      run: cargo build --locked --release --all-targets --all-features
 
-    - uses: actions-rs/cargo@v1
-      name: Test
-      with:
-        command: test
-        args: --locked --release --all-targets no --all-features
+    - name: Test
+      run: cargo test --locked --release --all-targets no --all-features
 
-    - uses: actions-rs/cargo@v1
-      name: Clippy
-      with:
-        command: clippy
-        args: --locked --release --all-targets --all-features -- -D warnings
+    - name: Clippy
+      run: cargo clippy --locked --release --all-targets --all-features -- -D warnings
 
-    - uses: actions-rs/cargo@v1
-      name: Documentation
-      with:
-        command: doc
-        args: --locked --release --no-deps --all-features
+    - name: Documentation
+      run: cargo doc --locked --release --no-deps --all-features
 
-    - uses: actions-rs/cargo@v1
-      name: Doc Test
-      with:
-        command: test
-        args: --locked --release --doc
+    - name: Doc Test
+      run: cargo test --locked --release --doc
