@@ -71,7 +71,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	for (i, field) in s.fields.iter().enumerate() {
 		let field_name = field.ident.clone().unwrap();
 		let field_type = &field.ty;
-		let field_attrs = extract_attributes(&field)?;
+		let field_attrs = extract_attributes(field)?;
 
 		if is_ctor(&field_attrs) {
 			constructor_args.push(quote! {#field_name: #field_type});
@@ -160,8 +160,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 		}
 	};
 
-	let default_builder_name =
-		syn::Ident::new(&format!("{}Builder", name.to_string()), name.span());
+	let default_builder_name = syn::Ident::new(&format!("{}Builder", name), name.span());
 
 	let default_builder_type = quote! {
 		#vis type #default_builder_name = #builder_ident<#(#builder_const_generics_all_unset),*>;
@@ -196,8 +195,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	Ok(quote! {
 		#builder
 		#gen
-	}
-	.into())
+	})
 }
 
 fn extract_attributes(field: &syn::Field) -> Result<FieldAttrs, syn::Error> {
@@ -235,7 +233,7 @@ fn parse_builder_attribute(attr: &syn::Attribute) -> Result<FieldAttr, syn::Erro
 
 			Ok(FieldAttr { id, val: FieldAttrVal::Override(val) })
 		},
-		_ => return Err(syn::Error::new_spanned(attr, "Expected builder attribute to be a list")),
+		_ => Err(syn::Error::new_spanned(attr, "Expected builder attribute to be a list")),
 	}
 }
 
