@@ -11,6 +11,9 @@
   <a href="https://crates.io/crates/typesafe-builders">
     <img src="https://img.shields.io/crates/v/typesafe-builders"/>
   </a>
+  <a href="https://github.com/ggwpez/typesafe-builders/actions/workflows/rust.yml">
+  	<img src="https://github.com/ggwpez/typesafe-builders/actions/workflows/rust.yml/badge.svg"/>
+  </a>
 </p>
 
 No more worrying whether the `build` call on your builder will return `Ok` or not. Maybe you forgot to set a field? `typesafe-builders` solves this by using the Rust type-system to ensure correct usage.
