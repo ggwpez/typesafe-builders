@@ -21,31 +21,34 @@ No more worrying whether the `build` call on your builder will return `Ok` or no
 fn example() {
 	#[derive(Builder)]
 	struct Point {
+		#[builder(constructor)]
 		x: u8,
 		y: u8,
-		#[optional]
+		#[builder(optional)]
 		z: Option<u8>,
 	}
 
-	let builder = Point::builder();
-	let partial = builder.x(5);
+	// The `builder` function requires `x` since it is marked as `constructor`.
+	let builder = Point::builder(1);
 	// These do not compile:
 	// partial.x(6); 		// `x` is already set
 	// partial.build();		// `y` is not set
 
 	// Set all required fields to enable the `build` function:
-	let complete = partial.y(8);
-	let result = complete.build();
+	let result = builder.y(2).build();
 
-	assert_eq!(result.x, 5);
-	assert_eq!(result.y, 8);
+	assert_eq!(result.x, 1);
+	assert_eq!(result.y, 2);
 	assert_eq!(result.z, None);
 }
 ```
 
 ## Field Attributes
 
-- `#[optional]` - WIP: to be changed to `builder(optional)` to prevent name clashes.
+All attributes must be wrapped in a `builder`, eg. `builder(optional)`.
+
+- `optional` - A field can be set, but is not required to.
+- `constructor` - A field must already be set in the `builder` function.
 
 # How does it work?
 
@@ -77,11 +80,11 @@ impl Builder<true, true> {
 }
 ```
 
-# TODOS
+# TODOs
 
-- [ ] Code quality is horrible 🙈
 - [x] Add `optional` fields.
 - [ ] Add `rename` field attribute.
-- [ ] Add `in_constructor` or something like this to have mandatory args directly in the `builder` function.
+- [x] Add `constructor` or something like this to have mandatory args directly in the `builder` function.
 - [ ] Add `Into` or whatever to cast types.
 - [ ] Add way to pass options as `Some` automatically.
+- [ ] Cleanup

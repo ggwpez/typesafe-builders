@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-// Using two functions here to get it parallel.
+//! UI tests but at the same time they also run the assertions.
 
 #[test]
 fn ui_pass() {
