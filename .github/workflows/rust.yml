@@ -27,16 +27,16 @@ jobs:
       run: cargo fmt --all -- --check
 
     - name: Build
-      run: cargo build --release --all-targets --all-features # --locked  TODO
+      run: cargo build --all-targets --all-features # --locked TODO
 
     - name: Test
-      run: cargo test --locked --release --all-targets no --all-features
+      run: cargo test --locked --all-targets --all-features
 
     - name: Clippy
-      run: cargo clippy --locked --release --all-targets --all-features -- -D warnings
+      run: cargo clippy --locked --all-targets --all-features -- -D warnings
 
     - name: Documentation
-      run: cargo doc --locked --release --no-deps --all-features
+      run: cargo doc --locked --no-deps --all-features
 
     - name: Doc Test
-      run: cargo test --locked --release --doc
+      run: cargo test --locked --doc
