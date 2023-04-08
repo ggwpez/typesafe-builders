@@ -5,7 +5,7 @@
 
 #![allow(non_upper_case_globals)]
 
-use quote::{quote};
+use quote::quote;
 use syn::spanned::Spanned;
 
 pub type FieldAttrs = std::collections::HashMap<FieldAttrId, FieldAttrVal>;
@@ -77,7 +77,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 			constructor_args.push(quote! {#field_name: #field_type});
 			constructor_arg_names.push(field_name.clone());
 		}
-		
+
 		if is_optional(&field_attrs) {
 			let setter_name = syn::Ident::new(
 				&format!("{}_set", field.ident.clone().unwrap()).to_uppercase(),
@@ -85,7 +85,8 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 			);
 			builder_builder_func_generics.push(quote! { const #setter_name: bool });
 			build_function_generic_values.push(quote! { #setter_name });
-			builder_field_assignments.push(quote! {#field_name: self.#field_name.unwrap_or_default()});
+			builder_field_assignments
+				.push(quote! {#field_name: self.#field_name.unwrap_or_default()});
 		} else {
 			build_function_generic_values.push(quote! { true });
 			builder_field_assignments.push(quote! {#field_name: self.#field_name.unwrap() });
@@ -159,10 +160,8 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 		}
 	};
 
-	let default_builder_name = syn::Ident::new(
-		&format!("{}Builder", name.to_string()),
-		name.span(),
-	);
+	let default_builder_name =
+		syn::Ident::new(&format!("{}Builder", name.to_string()), name.span());
 
 	let default_builder_type = quote! {
 		#vis type #default_builder_name = #builder_ident<#(#builder_const_generics_all_unset),*>;
@@ -213,7 +212,7 @@ fn extract_attributes(field: &syn::Field) -> Result<FieldAttrs, syn::Error> {
 	}
 
 	if is_optional(&field_attrs) && is_ctor(&field_attrs) {
-		return Err(syn::Error::new_spanned(field, "Optional fields cannot be in the constructor"));
+		return Err(syn::Error::new_spanned(field, "Optional fields cannot be in the constructor"))
 	}
 
 	Ok(field_attrs)
@@ -221,24 +220,22 @@ fn extract_attributes(field: &syn::Field) -> Result<FieldAttrs, syn::Error> {
 
 fn parse_builder_attribute(attr: &syn::Attribute) -> Result<FieldAttr, syn::Error> {
 	match &attr.meta {
-		syn::Meta::List(syn::MetaList{path, tokens, ..}) => {
+		syn::Meta::List(syn::MetaList { path, tokens, .. }) => {
 			let spath = path_to_string(path);
 			if spath != "builder" {
-				return Err(syn::Error::new_spanned(attr, format!("Expected attribute `builder`, got {}", spath)));
+				return Err(syn::Error::new_spanned(
+					attr,
+					format!("Expected attribute `builder`, got {}", spath),
+				))
 			}
 
 			let attr = syn::parse2::<ParsedFieldAttr>(tokens.clone())?;
 			let id: FieldAttrId = attr.id.try_into()?;
 			let val = attr.val.map(|v| v.value).unwrap_or(true);
 
-			Ok(FieldAttr {
-				id,
-				val: FieldAttrVal::Override(val),
-			})
+			Ok(FieldAttr { id, val: FieldAttrVal::Override(val) })
 		},
-		_ => {
-			return Err(syn::Error::new_spanned(attr, "Expected builder attribute to be a list"))
-		}
+		_ => return Err(syn::Error::new_spanned(attr, "Expected builder attribute to be a list")),
 	}
 }
 
@@ -265,15 +262,11 @@ impl TryFrom<syn::Ident> for FieldAttrId {
 		match ident.to_string().as_str() {
 			"optional" => Ok(FieldAttrId::Optional),
 			"constructor" => Ok(FieldAttrId::Constructor),
-			e => Err(syn::Error::new(ident.span(), format!("Unknown field attribute: {:?}", e))),			
+			e => Err(syn::Error::new(ident.span(), format!("Unknown field attribute: {:?}", e))),
 		}
 	}
 }
 
 fn path_to_string(p: &syn::Path) -> String {
-	p.segments
-		.iter()
-		.map(|s| s.ident.to_string())
-		.collect::<Vec<_>>()
-		.join("")
+	p.segments.iter().map(|s| s.ident.to_string()).collect::<Vec<_>>().join("")
 }

@@ -7,14 +7,14 @@
 
 #[test]
 fn ui_pass() {
-    let t = trybuild::TestCases::new();
+	let t = trybuild::TestCases::new();
 
 	t.pass("tests/ui/pass/*.rs");
 }
 
 #[test]
 fn ui_reject() {
-    let t = trybuild::TestCases::new();
+	let t = trybuild::TestCases::new();
 
 	t.compile_fail("tests/ui/reject/*.rs");
 }
