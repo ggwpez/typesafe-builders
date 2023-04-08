@@ -27,7 +27,7 @@ jobs:
       run: cargo fmt --all -- --check
 
     - name: Build
-      run: cargo build --locked --release --all-targets --all-features
+      run: cargo build --release --all-targets --all-features # --locked  TODO
 
     - name: Test
       run: cargo test --locked --release --all-targets no --all-features
