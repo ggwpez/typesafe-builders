@@ -21,6 +21,8 @@ No more worrying whether the `build` call on your builder will return `Ok` or no
 # Example
 
 ```rust
+use typesafe_builders::prelude::*;
+
 fn example() {
 	#[derive(Builder)]
 	struct Point {
