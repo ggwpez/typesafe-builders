@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#![doc = include_str!("../../README.md")]
+//! README in the workspace root or at [crates.io](https://crates.io/crates/typesafe-builders).
 
 /// Selection of imports that "just work".
 pub mod prelude {
