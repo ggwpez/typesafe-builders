@@ -1,0 +1,11 @@
+error[E0603]: struct `Struct` is private
+  --> tests/ui/reject/builder_priv.rs:12:17
+   |
+12 |     let _ = other::Struct::builder();
+   |                    ^^^^^^ private struct
+   |
+note: the struct `Struct` is defined here
+  --> tests/ui/reject/builder_priv.rs:5:2
+   |
+5  |     struct Struct {
+   |     ^^^^^^^^^^^^^
