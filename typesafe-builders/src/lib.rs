@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-/// Selection of imports that "just works".
+#![doc = include_str!("../../README.md")]
+
+/// Selection of imports that "just work".
 pub mod prelude {
 	pub use typesafe_builders_derive::Builder;
 }

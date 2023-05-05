@@ -1,5 +1,5 @@
 <h1 align="center"><br>
-    Type Safe Builder Patterns
+    Type Safe Builder Pattern
 <br></h1>
 
 <h4 align="center">Infallible compile-time checked builders for your structs.</h4>
@@ -67,13 +67,13 @@ pub struct Builder<const x_set: bool, const y_set: bool> {
 
 impl<const y_set: bool> Builder<false, y_set> {
     fn set_x(self, x: u8) -> Builder<true, y_set,> {
-        …
+        todo!()
     }
 }
 
 impl<const x_set: bool> Builder<x_set, false> {
     fn set_y(self, y: u8) -> Builder<x_set, true> {
-        …
+        todo!()
     }
 }
 

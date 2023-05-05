@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
+//! Implementation for [`typesafe-builders`](https://docs.rs/typesafe-builders).
+
 #![allow(non_upper_case_globals)]
 
 use quote::quote;

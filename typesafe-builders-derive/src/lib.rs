@@ -3,10 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-//! Exports the `#[derive(Builder)]` attribute macro.
-//!
-//! There is nothing else going on here - the implementation is in `typesafe-builders-core` since
-//! rust enforces that nothing but proc macros are exported from a `proc_macro` crate…
+//! Derive export for [`typesafe-builders`](https://docs.rs/typesafe-builders).
 
 extern crate proc_macro;
 use proc_macro::TokenStream;
