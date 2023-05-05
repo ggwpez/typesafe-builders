@@ -1,10 +1,13 @@
-use typesafe_builders::prelude::*;
+mod other {
+	use typesafe_builders::prelude::*;
 
-#[derive(Builder)]
-struct Struct {
-	x: u8,
-	y: u8,
+	#[derive(Builder)]
+	pub struct Struct {
+		x: u8,
+		y: u8,
+	}
 }
+use other::Struct;
 
 fn main() {
 	assert_eq!(Struct::builder().x, None);

@@ -2,7 +2,7 @@ use typesafe_builders::prelude::*;
 
 fn main() {
 	#[derive(Builder)]
-	struct Point {
+	pub struct Point {
 		#[builder(constructor)]
 		x: u8,
 		y: u8,

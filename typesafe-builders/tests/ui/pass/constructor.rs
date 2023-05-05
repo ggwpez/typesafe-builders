@@ -1,12 +1,14 @@
-use typesafe_builders::prelude::*;
+mod other {
+	use typesafe_builders::prelude::*;
 
-#[derive(Builder)]
-struct Struct {
-	#[builder(constructor)]
-	x: u8,
+	#[derive(Builder)]
+	pub struct Struct {
+		#[builder(constructor)]
+		pub x: u8,
+	}
 }
 
 fn main() {
-	let r = Struct::builder(2).build();
+	let r = other::Struct::builder(2).build();
 	assert_eq!(r.x, 2);
 }

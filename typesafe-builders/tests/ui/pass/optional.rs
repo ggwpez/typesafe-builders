@@ -1,12 +1,15 @@
-use typesafe_builders::prelude::*;
+mod other {
+	use typesafe_builders::prelude::*;
 
-#[derive(Builder)]
-struct Struct {
-	#[builder(optional)]
-	x: Option<u8>,
-	#[builder(optional)]
-	y: Option<u8>,
+	#[derive(Builder)]
+	pub struct Struct {
+		#[builder(optional)]
+		x: Option<u8>,
+		#[builder(optional)]
+		y: Option<u8>,
+	}
 }
+use other::Struct;
 
 fn main() {
 	Struct::builder().build();
