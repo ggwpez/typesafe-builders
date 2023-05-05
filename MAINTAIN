@@ -1,6 +1,9 @@
 Without any un-staged changes:
 
 ```bash
-cargo workspaces version --no-git-push
+git tag -s typesafe-builders@v0.4.0 -m "typesafe-builders v0.4.0"
+git tag -s typesafe-builders-core@v0.4.0 -m "typesafe-builders-core v0.4.0"
+git tag -s typesafe-builders-derive@v0.4.0 -m "typesafe-builders-derive v0.4.0"
+
 cargo publish -p typesafe-builders-core && cargo publish -p typesafe-builders-derive && cargo publish -p typesafe-builders
 ```
