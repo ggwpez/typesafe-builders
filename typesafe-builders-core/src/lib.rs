@@ -183,7 +183,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	let gen = quote! {
 		impl #name {
 			#[allow(dead_code)]
-			fn builder(#(#constructor_args),*) -> #builder_ident<#(#builder_const_generics_all_unset),*> {
+			pub fn builder(#(#constructor_args),*) -> #builder_ident<#(#builder_const_generics_all_unset),*> {
 				#builder_ident {
 					#(#builder_field_names: None,)*
 					#(#constructor_arg_names: Some(#constructor_arg_names),)*
