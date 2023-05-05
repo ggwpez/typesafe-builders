@@ -156,7 +156,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 		#[allow(dead_code)]
 		#[allow(non_upper_case_globals)]
 		#vis struct #builder_ident<#(#builder_const_generics),*> {
-			#(#builder_field_names: Option<#builder_field_types>),*
+			#(pub #builder_field_names: Option<#builder_field_types>),*
 		}
 	};
 
