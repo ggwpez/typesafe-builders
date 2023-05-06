@@ -23,7 +23,7 @@ No more worrying whether the `build` call on your builder will return `Ok` or no
 ```rust
 use typesafe_builders::prelude::*;
 
-fn example() {
+fn main() {
 	#[derive(Builder)]
 	struct Point {
 		#[builder(constructor)]
@@ -33,13 +33,13 @@ fn example() {
 		z: Option<u8>,
 	}
 
-	// The `builder` function requires `x` since it is marked as `constructor`.
+	// `builder` requires `x` since it is marked as `constructor`.
 	let builder = Point::builder(1);
 	// These do not compile:
 	// partial.x(6); 		// `x` is already set
 	// partial.build();		// `y` is not set
 
-	// Set all required fields to enable the `build` function:
+	// `build` is only available once all required fields are set:
 	let result = builder.y(2).build();
 
 	assert_eq!(result.x, 1);
@@ -50,10 +50,40 @@ fn example() {
 
 ## Field Attributes
 
-All attributes must be wrapped in a `builder`, eg. `builder(optional)`.
+All attributes must be wrapped by `builder`, eg. `builder(optional)`.
 
 - `optional` - A field can be set, but is not required to.
 - `constructor` - A field must already be set in the `builder` function.
+
+# Known Downside
+
+Although having everything known at compile time it nice - it comes at the cost of having verbose types in cases where that information needs to be passed on.  
+
+For example when you want to return a builder from a function, it normally looks like this:
+
+```rust
+use typesafe_builders::prelude::*;
+
+#[derive(Builder)]
+struct Point {
+	x: u8,
+	y: u8,
+	z: u8,
+}
+
+// Ugly type name here...
+fn preset() -> GenericPointBuilder<false, false, true> {
+	Point::builder().z(0)
+}
+
+fn main() {
+	// Luckily we dont need to type it here again:
+	let partial = preset();
+	let point = partial.x(1).y(2).build();
+}
+```
+
+Please open an MR/Issue if you know how to improve this.
 
 # How does it work?
 
@@ -67,13 +97,13 @@ pub struct Builder<const x_set: bool, const y_set: bool> {
 
 impl<const y_set: bool> Builder<false, y_set> {
     fn set_x(self, x: u8) -> Builder<true, y_set,> {
-        todo!()
+        unimplemented!()
     }
 }
 
 impl<const x_set: bool> Builder<x_set, false> {
     fn set_y(self, y: u8) -> Builder<x_set, true> {
-        todo!()
+        unimplemented!()
     }
 }
 
