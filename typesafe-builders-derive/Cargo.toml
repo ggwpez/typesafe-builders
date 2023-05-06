@@ -18,3 +18,6 @@ typesafe-builders-core.workspace = true
 
 quote.workspace = true
 syn.workspace = true
+
+[dev-dependencies]
+typesafe-builders.workspace = true

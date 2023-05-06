@@ -19,6 +19,7 @@ members = [
 
 [workspace.dependencies]
 # Internal deps
+typesafe-builders = { path = "typesafe-builders", version = "0.4.0" }
 typesafe-builders-core = { path = "typesafe-builders-core", version = "0.4.0" }
 typesafe-builders-derive = { path = "typesafe-builders-derive", version = "0.4.0" }
 

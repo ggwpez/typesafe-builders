@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-//! Implementation for [`typesafe-builders`](https://docs.rs/typesafe-builders).
+#![doc = include_str!(concat!("../", env!("CARGO_PKG_README")))]
 
 #![allow(non_upper_case_globals)]
 

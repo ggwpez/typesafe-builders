@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-//! README in the workspace root or at [crates.io](https://crates.io/crates/typesafe-builders).
+#![doc = include_str!(concat!("../", env!("CARGO_PKG_README")))]
 
 /// Selection of imports that "just work".
 pub mod prelude {

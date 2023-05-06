@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-//! Derive export for [`typesafe-builders`](https://docs.rs/typesafe-builders).
+#![doc = include_str!(concat!("../", env!("CARGO_PKG_README")))]
 
 extern crate proc_macro;
 use proc_macro::TokenStream;
