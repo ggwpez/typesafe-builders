@@ -337,7 +337,7 @@ fn decay_type(t: &syn::Type) -> syn::Result<syn::Type> {
 	if args.args.len() != 1 {
 		return Err(syn::Error::new(
 			args.args.span(),
-			&format!("Need exactly one generic argument, but got {}", args.args.len()),
+			format!("Need exactly one generic argument, but got {}", args.args.len()),
 		))
 	}
 	match args.args.first().unwrap() {
