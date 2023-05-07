@@ -4,7 +4,6 @@
  */
 
 #![doc = include_str!(concat!("../", env!("CARGO_PKG_README")))]
-
 #![allow(non_upper_case_globals)]
 
 use quote::quote;
@@ -27,7 +26,7 @@ pub enum FieldAttrId {
 	/// Decay the type once for the setter function.
 	///
 	/// Eg `Option<T>` can be set directly instead of having to wrap it in `Some(_)`.
-	/// 
+	///
 	/// Note: The wording `decay` comes from C++ - maybe someone can point out a more *Rusty* term.
 	Decay,
 }
@@ -148,8 +147,8 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 			}
 		}
 		setters.push(quote! {
-            #[allow(non_upper_case_globals)]
-            impl<
+			#[allow(non_upper_case_globals)]
+			impl<
 				#(#user_generics,)*
 				#(#const_generics),*
 			>
@@ -157,18 +156,18 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 				#(#user_generics,)*
 				#(#const_generic_vars),*
 			> {
-                #[allow(dead_code)]
-                pub fn #setter_name(self, #field_name: #setter_type) -> #builder_ident<
+				#[allow(dead_code)]
+				pub fn #setter_name(self, #field_name: #setter_type) -> #builder_ident<
 					#(#user_generics,)*
 					#(#const_generic_return_vars),*
 				> {
-                    #builder_ident {
-                        #field_name: #setter_val,
-                        #(#all_expect_field_name: self.#all_expect_field_name),*
-                    }
-                }
-            }
-        });
+					#builder_ident {
+						#field_name: #setter_val,
+						#(#all_expect_field_name: self.#all_expect_field_name),*
+					}
+				}
+			}
+		});
 	}
 	let build_fn = quote! {
 		impl<
@@ -336,7 +335,10 @@ fn decay_type(t: &syn::Type) -> syn::Result<syn::Type> {
 	};
 	// TODO check for not-time
 	if args.args.len() != 1 {
-		return Err(syn::Error::new(args.args.span(), &format!("Need exactly one generic argument, but got {}", args.args.len())));
+		return Err(syn::Error::new(
+			args.args.span(),
+			&format!("Need exactly one generic argument, but got {}", args.args.len()),
+		))
 	}
 	match args.args.first().unwrap() {
 		syn::GenericArgument::Type(inner) => Ok(inner.clone()),
