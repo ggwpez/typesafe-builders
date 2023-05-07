@@ -55,7 +55,16 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 			"derive(Builder) can only be used on structs",
 		));
     };
-	let user_generics = ast.generics.params.clone().into_iter().collect::<Vec<_>>();
+	let mut user_generics_def = Vec::<&syn::GenericParam>::new();
+	let mut user_generics_impl = Vec::<proc_macro2::TokenStream>::new();
+	let mut user_generics_alias = Vec::<proc_macro2::TokenStream>::new();
+
+	for gen in ast.generics.params.iter() {
+		user_generics_def.push(gen);
+		let (gimpl, galias) = extract_def(gen)?;
+		user_generics_impl.push(gimpl);
+		user_generics_alias.push(galias);
+	} 
 
 	let vis = ast.vis.clone();
 	let name = &ast.ident;
@@ -149,16 +158,16 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 		setters.push(quote! {
 			#[allow(non_upper_case_globals)]
 			impl<
-				#(#user_generics,)*
+				#(#user_generics_def,)*
 				#(#const_generics),*
 			>
 			#builder_ident<
-				#(#user_generics,)*
+				#(#user_generics_impl,)*
 				#(#const_generic_vars),*
 			> {
 				#[allow(dead_code)]
 				pub fn #setter_name(self, #field_name: #setter_type) -> #builder_ident<
-					#(#user_generics,)*
+					#(#user_generics_impl,)*
 					#(#const_generic_return_vars),*
 				> {
 					#builder_ident {
@@ -171,15 +180,15 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	}
 	let build_fn = quote! {
 		impl<
-			#(#user_generics,)*
+			#(#user_generics_def,)*
 			#(#builder_builder_func_generics),*
 		> #builder_ident<
-			#(#user_generics,)*
+			#(#user_generics_impl,)*
 			#(#build_function_generic_values),*
 		> {
 			/// Infallible build the instance.
 			#[allow(dead_code)]
-			pub fn build(self) -> #name<#(#user_generics,)*> {
+			pub fn build(self) -> #name<#(#user_generics_impl,)*> {
 				#name {
 					#(#builder_field_assignments),*
 				}
@@ -191,7 +200,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 		#[allow(dead_code)]
 		#[allow(non_upper_case_globals)]
 		#vis struct #builder_ident<
-			#(#user_generics,)*
+			#(#user_generics_def,)*
 			#(#builder_const_generics),
 		*> {
 			#(pub #builder_field_names: Option<#builder_field_types>),*
@@ -202,9 +211,9 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 
 	let default_builder_type = quote! {
 		#vis type #default_builder_name<
-			#(#user_generics,)*
+			#(#user_generics_alias,)*
 		> = #builder_ident<
-			#(#user_generics,)*
+			#(#user_generics_impl,)*
 			#(#builder_const_generics_all_unset),*
 		>;
 	};
@@ -224,10 +233,10 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	}
 
 	let gen = quote! {
-		impl<#(#user_generics,)*> #name<#(#user_generics,)*> {
+		impl<#(#user_generics_def,)*> #name<#(#user_generics_impl,)*> {
 			#[allow(dead_code)]
 			pub fn builder(#(#constructor_args),*) -> #builder_ident<
-				#(#user_generics,)*
+				#(#user_generics_impl,)*
 				#(#builder_const_generics_all_unset),*
 			> {
 				#builder_ident {
@@ -344,4 +353,21 @@ fn decay_type(t: &syn::Type) -> syn::Result<syn::Type> {
 		syn::GenericArgument::Type(inner) => Ok(inner.clone()),
 		_ => todo!(),
 	}
+}
+
+fn extract_def(gen: &syn::GenericParam) -> syn::Result<(proc_macro2::TokenStream, proc_macro2::TokenStream)> {
+	Ok(match gen {
+		syn::GenericParam::Lifetime(lt) => {
+			let lifetime = &lt.lifetime;
+			(quote::quote! { #lifetime }.into(), quote::quote! { #lifetime }.into())
+		},
+		syn::GenericParam::Type(tp) => {
+			let t = &tp.ident;
+			(quote::quote! { #t }.into(), quote::quote! { #t }.into())
+		},
+		syn::GenericParam::Const(cp) => {
+			let c = &cp.ident;
+			(quote::quote! { #c }.into(), quote::quote! { #gen }.into())
+		},
+	})
 }
