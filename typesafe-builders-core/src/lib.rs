@@ -56,6 +56,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 			"derive(Builder) can only be used on structs",
 		));
     };
+	let user_generics = ast.generics.params.clone().into_iter().collect::<Vec<_>>();
 
 	let vis = ast.vis.clone();
 	let name = &ast.ident;
@@ -148,9 +149,19 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 		}
 		setters.push(quote! {
             #[allow(non_upper_case_globals)]
-            impl<#(#const_generics),*> #builder_ident<#(#const_generic_vars),*> {
+            impl<
+				#(#user_generics,)*
+				#(#const_generics),*
+			>
+			#builder_ident<
+				#(#user_generics,)*
+				#(#const_generic_vars),*
+			> {
                 #[allow(dead_code)]
-                pub fn #setter_name(self, #field_name: #setter_type) -> #builder_ident<#(#const_generic_return_vars),*> {
+                pub fn #setter_name(self, #field_name: #setter_type) -> #builder_ident<
+					#(#user_generics,)*
+					#(#const_generic_return_vars),*
+				> {
                     #builder_ident {
                         #field_name: #setter_val,
                         #(#all_expect_field_name: self.#all_expect_field_name),*
@@ -160,10 +171,16 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
         });
 	}
 	let build_fn = quote! {
-		impl<#(#builder_builder_func_generics),*> #builder_ident<#(#build_function_generic_values),*> {
+		impl<
+			#(#user_generics,)*
+			#(#builder_builder_func_generics),*
+		> #builder_ident<
+			#(#user_generics,)*
+			#(#build_function_generic_values),*
+		> {
 			/// Infallible build the instance.
 			#[allow(dead_code)]
-			pub fn build(self) -> #name {
+			pub fn build(self) -> #name<#(#user_generics,)*> {
 				#name {
 					#(#builder_field_assignments),*
 				}
@@ -174,7 +191,10 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	let builder_struct = quote! {
 		#[allow(dead_code)]
 		#[allow(non_upper_case_globals)]
-		#vis struct #builder_ident<#(#builder_const_generics),*> {
+		#vis struct #builder_ident<
+			#(#user_generics,)*
+			#(#builder_const_generics),
+		*> {
 			#(pub #builder_field_names: Option<#builder_field_types>),*
 		}
 	};
@@ -182,7 +202,12 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	let default_builder_name = syn::Ident::new(&format!("{}Builder", name), name.span());
 
 	let default_builder_type = quote! {
-		#vis type #default_builder_name = #builder_ident<#(#builder_const_generics_all_unset),*>;
+		#vis type #default_builder_name<
+			#(#user_generics,)*
+		> = #builder_ident<
+			#(#user_generics,)*
+			#(#builder_const_generics_all_unset),*
+		>;
 	};
 
 	let builder = quote! {
@@ -200,9 +225,12 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	}
 
 	let gen = quote! {
-		impl #name {
+		impl<#(#user_generics,)*> #name<#(#user_generics,)*> {
 			#[allow(dead_code)]
-			pub fn builder(#(#constructor_args),*) -> #builder_ident<#(#builder_const_generics_all_unset),*> {
+			pub fn builder(#(#constructor_args),*) -> #builder_ident<
+				#(#user_generics,)*
+				#(#builder_const_generics_all_unset),*
+			> {
 				#builder_ident {
 					#(#builder_field_names: None,)*
 					#(#constructor_arg_names: #constructor_arg_values,)*

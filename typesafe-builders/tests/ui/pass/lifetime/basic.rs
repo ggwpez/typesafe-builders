@@ -8,4 +8,5 @@ mod other {
 }
 
 fn main() {
+	other::Struct::builder().x("hello").build();
 }
