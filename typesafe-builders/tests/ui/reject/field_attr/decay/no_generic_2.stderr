@@ -1,0 +1,5 @@
+error: Expected a path type
+ --> tests/ui/reject/field_attr/decay/no_generic_2.rs:7:6
+  |
+7 |         x: &'static u8,
+  |            ^^^^^^^^^^^

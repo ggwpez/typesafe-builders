@@ -326,7 +326,7 @@ fn path_to_string(p: &syn::Path) -> String {
 
 fn decay_type(t: &syn::Type) -> syn::Result<syn::Type> {
 	let syn::Type::Path(p) = t else {
-		return Ok(t.clone());
+		return Err(syn::Error::new(t.span(), "Expected a path type"));
 	};
 
 	let last = p.path.segments.last().unwrap();

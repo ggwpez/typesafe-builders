@@ -95,8 +95,7 @@ fn main() {
 
 ### Decay
 
-Decay the type to its first generic. Eases use for `Option`, `Box` etc. Requires that the decayed type can be `into`ed its original.  
-Works on all types with one generic arg.
+Decay the type to its first generic. Eases use for `Option`, `Box` etc. Requires that the decayed type can be `into`ed its original. Works on all types with one generic arg.
 
 ```rust
 use typesafe_builders::prelude::*;
@@ -198,8 +197,8 @@ TODO
 
 # TODOs
 
-- [ ] Lifetimes
-- [ ] Generics
+- [x] Lifetimes
+- [x] Generics
 - [x] Add `optional` fields.
 - [ ] Add `rename` field attribute.
 - [x] Add `constructor` or something like this to have mandatory args directly in the `builder` function.

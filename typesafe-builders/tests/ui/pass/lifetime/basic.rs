@@ -9,4 +9,5 @@ mod other {
 
 fn main() {
 	other::Struct::builder().x("hello").build();
+	other::Struct::<'static>::builder().x("hello").build();
 }
