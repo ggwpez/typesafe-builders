@@ -24,6 +24,12 @@ pub enum FieldAttrId {
 	Optional,
 	/// A field *must* be set directly in the `builder` constructor.
 	Constructor,
+	/// Decay the type once for the setter function.
+	///
+	/// Eg `Option<T>` can be set directly instead of having to wrap it in `Some(_)`.
+	/// 
+	/// Note: The wording `decay` comes from C++ - maybe someone can point out a more *Rusty* term.
+	Decay,
 }
 
 #[derive(Debug, Eq, Hash, PartialEq)]
@@ -67,16 +73,27 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	let mut build_function_generic_values = vec![];
 
 	let mut constructor_arg_names = vec![];
+	let mut constructor_arg_values = vec![];
 	let mut constructor_args = vec![];
 
 	let mut setters = vec![];
 	for (i, field) in s.fields.iter().enumerate() {
-		let field_name = field.ident.clone().unwrap();
+		let Some(field_name) = field.ident.clone() else {
+			return Err(syn::Error::new(field.span(), "Builder does not work on unnamed fields"));
+		};
 		let field_type = &field.ty;
 		let field_attrs = extract_attributes(field)?;
 
+		let (setter_type, setter_val) = if is_decay(&field_attrs) {
+			// TODO
+			(decay_type(field_type)?, quote! { Some(#field_name.into()) })
+		} else {
+			(field_type.clone(), quote! { Some(#field_name) })
+		};
+
 		if is_ctor(&field_attrs) {
-			constructor_args.push(quote! {#field_name: #field_type});
+			constructor_args.push(quote! {#field_name: #setter_type});
+			constructor_arg_values.push(setter_val.clone());
 			constructor_arg_names.push(field_name.clone());
 		}
 
@@ -133,9 +150,9 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
             #[allow(non_upper_case_globals)]
             impl<#(#const_generics),*> #builder_ident<#(#const_generic_vars),*> {
                 #[allow(dead_code)]
-                pub fn #setter_name(self, #field_name: #field_type) -> #builder_ident<#(#const_generic_return_vars),*> {
+                pub fn #setter_name(self, #field_name: #setter_type) -> #builder_ident<#(#const_generic_return_vars),*> {
                     #builder_ident {
-                        #field_name: Some(#field_name),
+                        #field_name: #setter_val,
                         #(#all_expect_field_name: self.#all_expect_field_name),*
                     }
                 }
@@ -188,7 +205,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 			pub fn builder(#(#constructor_args),*) -> #builder_ident<#(#builder_const_generics_all_unset),*> {
 				#builder_ident {
 					#(#builder_field_names: None,)*
-					#(#constructor_arg_names: Some(#constructor_arg_names),)*
+					#(#constructor_arg_names: #constructor_arg_values,)*
 				}
 			}
 		}
@@ -200,7 +217,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 	})
 }
 
-fn extract_attributes(field: &syn::Field) -> Result<FieldAttrs, syn::Error> {
+fn extract_attributes(field: &syn::Field) -> syn::Result<FieldAttrs> {
 	let mut field_attrs = FieldAttrs::new();
 
 	for raw_attr in field.attrs.iter() {
@@ -218,7 +235,7 @@ fn extract_attributes(field: &syn::Field) -> Result<FieldAttrs, syn::Error> {
 	Ok(field_attrs)
 }
 
-fn parse_builder_attribute(attr: &syn::Attribute) -> Result<FieldAttr, syn::Error> {
+fn parse_builder_attribute(attr: &syn::Attribute) -> syn::Result<FieldAttr> {
 	match &attr.meta {
 		syn::Meta::List(syn::MetaList { path, tokens, .. }) => {
 			let spath = path_to_string(path);
@@ -247,6 +264,14 @@ fn is_optional(attrs: &FieldAttrs) -> bool {
 	}
 }
 
+/// Whether a field is optional.
+fn is_decay(attrs: &FieldAttrs) -> bool {
+	match attrs.get(&FieldAttrId::Decay).unwrap_or(&FieldAttrVal::Inherit) {
+		FieldAttrVal::Override(o) => *o,
+		FieldAttrVal::Inherit => false,
+	}
+}
+
 /// Whether a field needs to be set in the constructor `builder` function.
 fn is_ctor(attrs: &FieldAttrs) -> bool {
 	match attrs.get(&FieldAttrId::Constructor).unwrap_or(&FieldAttrVal::Inherit) {
@@ -262,6 +287,7 @@ impl TryFrom<syn::Ident> for FieldAttrId {
 		match ident.to_string().as_str() {
 			"optional" => Ok(FieldAttrId::Optional),
 			"constructor" => Ok(FieldAttrId::Constructor),
+			"decay" => Ok(FieldAttrId::Decay),
 			e => Err(syn::Error::new(ident.span(), format!("Unknown field attribute: {:?}", e))),
 		}
 	}
@@ -269,4 +295,23 @@ impl TryFrom<syn::Ident> for FieldAttrId {
 
 fn path_to_string(p: &syn::Path) -> String {
 	p.segments.iter().map(|s| s.ident.to_string()).collect::<Vec<_>>().join("")
+}
+
+fn decay_type(t: &syn::Type) -> syn::Result<syn::Type> {
+	let syn::Type::Path(p) = t else {
+		return Ok(t.clone());
+	};
+
+	let last = p.path.segments.last().unwrap();
+	let syn::PathArguments::AngleBracketed(args) = &last.arguments else {
+		return Err(syn::Error::new(last.span(), "Expected one generic argument but got none"));
+	};
+	// TODO check for not-time
+	if args.args.len() != 1 {
+		return Err(syn::Error::new(args.args.span(), &format!("Need exactly one generic argument, but got {}", args.args.len())));
+	}
+	match args.args.first().unwrap() {
+		syn::GenericArgument::Type(inner) => Ok(inner.clone()),
+		_ => todo!(),
+	}
 }
