@@ -362,15 +362,15 @@ fn extract_def(
 	Ok(match gen {
 		syn::GenericParam::Lifetime(lt) => {
 			let lifetime = &lt.lifetime;
-			(quote::quote! { #lifetime }.into(), quote::quote! { #lifetime }.into())
+			(quote::quote! { #lifetime }, quote::quote! { #lifetime })
 		},
 		syn::GenericParam::Type(tp) => {
 			let t = &tp.ident;
-			(quote::quote! { #t }.into(), quote::quote! { #t }.into())
+			(quote::quote! { #t }, quote::quote! { #t })
 		},
 		syn::GenericParam::Const(cp) => {
 			let c = &cp.ident;
-			(quote::quote! { #c }.into(), quote::quote! { #gen }.into())
+			(quote::quote! { #c }, quote::quote! { #gen })
 		},
 	})
 }
