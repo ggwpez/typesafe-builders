@@ -1,9 +1,9 @@
 Without any un-staged changes:
 
 ```bash
-git tag -s typesafe-builders@v0.4.0 -m "typesafe-builders v0.4.0"
-git tag -s typesafe-builders-core@v0.4.0 -m "typesafe-builders-core v0.4.0"
-git tag -s typesafe-builders-derive@v0.4.0 -m "typesafe-builders-derive v0.4.0"
+git tag -s -f typesafe-builders@0.4.1 -m "typesafe-builders v0.4.1"
+git tag -s -f typesafe-builders-core@0.4.1 -m "typesafe-builders-core v0.4.1"
+git tag -s -f typesafe-builders-derive@0.4.1 -m "typesafe-builders-derive v0.4.1"
 
 cargo publish -p typesafe-builders-core && cargo publish -p typesafe-builders-derive && cargo publish -p typesafe-builders
 ```

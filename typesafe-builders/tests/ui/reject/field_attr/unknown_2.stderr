@@ -1,11 +1,11 @@
 error: Expected builder attribute to be a list
- --> tests/ui/reject/field_attr_unknown_2.rs:5:2
+ --> tests/ui/reject/field_attr/unknown_2.rs:5:2
   |
 5 |     #[optional]
   |     ^^^^^^^^^^^
 
 error: cannot find attribute `optional` in this scope
- --> tests/ui/reject/field_attr_unknown_2.rs:5:4
+ --> tests/ui/reject/field_attr/unknown_2.rs:5:4
   |
 5 |     #[optional]
   |       ^^^^^^^^

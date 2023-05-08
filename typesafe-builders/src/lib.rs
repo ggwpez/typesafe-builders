@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#![doc = include_str!(concat!("../", env!("CARGO_PKG_README")))]
+#![doc = include_str!(env!("README_PATH"))]
+#![deny(unsafe_code)]
 
 /// Selection of imports that "just work".
 pub mod prelude {

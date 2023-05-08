@@ -9,6 +9,9 @@ repository.workspace = true
 description.workspace = true
 readme.workspace = true
 keywords.workspace = true
+rust-version.workspace = true
+
+build = "build.rs"
 
 [dependencies]
 typesafe-builders-core.workspace = true

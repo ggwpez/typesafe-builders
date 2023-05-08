@@ -1,0 +1,5 @@
+error: Need exactly one generic argument, but got 2
+ --> tests/ui/reject/field_attr/decay/multiple_generics.rs:7:13
+  |
+7 |         x: Result<(), ()>,
+  |                   ^^^^^^

@@ -7,14 +7,12 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 description.workspace = true
-readme.workspace = true
+readme = "README.md"
 keywords.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 derive-syn-parse.workspace = true
 proc-macro2.workspace = true
 quote.workspace = true
 syn.workspace = true
-
-[dev-dependencies]
-typesafe-builders.workspace = true

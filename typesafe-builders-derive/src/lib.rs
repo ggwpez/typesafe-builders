@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#![doc = include_str!(concat!("../", env!("CARGO_PKG_README")))]
+#![doc = include_str!("../README.md")]
+#![deny(unsafe_code)]
 
 extern crate proc_macro;
 use proc_macro::TokenStream;
@@ -12,10 +13,11 @@ use proc_macro::TokenStream;
 ///
 /// ## Field Attributes
 ///
-/// All attributes must be wrapped in a `builder`, eg. `builder(optional)`.
+/// All attributes must be wrapped `builder`, eg. `builder(optional)`.
 ///
 /// - `optional` - A field can be set, but is not required to.
 /// - `constructor` - A field must already be set in the `builder` function.
+/// - `decay` - TODO explain
 #[proc_macro_derive(Builder, attributes(builder))]
 pub fn derive_builder(stream: TokenStream) -> TokenStream {
 	let ast = syn::parse_macro_input!(stream as syn::DeriveInput);

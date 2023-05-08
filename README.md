@@ -11,6 +11,10 @@
   <a href="https://crates.io/crates/typesafe-builders">
     <img src="https://img.shields.io/crates/v/typesafe-builders"/>
   </a>
+  <a href="https://docs.rs/crate/typesafe-builders">
+  	<img src="https://img.shields.io/docsrs/typesafe-builders"/>
+  </a>
+  <img src="https://img.shields.io/badge/MSRV-1.65-green"/>
   <a href="https://github.com/ggwpez/typesafe-builders/actions/workflows/rust.yml">
   	<img src="https://github.com/ggwpez/typesafe-builders/actions/workflows/rust.yml/badge.svg"/>
   </a>
@@ -48,18 +52,10 @@ fn main() {
 }
 ```
 
-## Field Attributes
-
-All attributes must be wrapped by `builder`, eg. `builder(optional)`.
-
-- `optional` - A field can be set, but is not required to.
-- `constructor` - A field must already be set in the `builder` function.
 
 # Known Downside
 
-Although having everything known at compile time it nice - it comes at the cost of having verbose types in cases where that information needs to be passed on.  
-
-For example when you want to return a builder from a function, it normally looks like this:
+I can recommend this only for *internal use*. It is best to not expose these builder types as an API of your crate, since they look extremely ugly and verbose. For example:
 
 ```rust
 use typesafe_builders::prelude::*;
@@ -71,19 +67,82 @@ struct Point {
 	z: u8,
 }
 
-// Ugly type name here...
+// Ugly type name here... and it only gets worse for const-generics etc.
 fn preset() -> GenericPointBuilder<false, false, true> {
 	Point::builder().z(0)
 }
 
 fn main() {
-	// Luckily we dont need to type it here again:
 	let partial = preset();
 	let point = partial.x(1).y(2).build();
 }
 ```
 
 Please open an MR/Issue if you know how to improve this.
+
+## Field Attributes
+
+Attributes can be combined. Ones that do not work together will throw an explicit error at compile time. Duplicates always error.
+
+### Optional
+
+A field can be set, but does not have to be. Requires the field type to be `Default`.
+
+```rust
+use typesafe_builders::prelude::*;
+
+#[derive(Builder)]
+pub struct Struct {
+	#[builder(optional)]
+	x: u8,
+}
+
+fn main() {
+	// without x
+	Struct::builder().build();
+	 // with x
+	Struct::builder().x(4).build();
+}
+```
+
+### Constructor
+
+Require a field to be set upon builder construction.
+
+```rust
+use typesafe_builders::prelude::*;
+
+#[derive(Builder)]
+pub struct Struct {
+	#[builder(constructor)]
+	x: u8,
+}
+
+fn main() {
+	Struct::builder(4).build();
+	// does not work:
+	// Struct::builder(4).x(5).build();
+}
+```
+
+### Decay
+
+Decay the type to its first generic. Eases use for `Option`, `Box` etc. Requires that the decayed type can be `into`ed its original. Works on all types with one generic arg.
+
+```rust
+use typesafe_builders::prelude::*;
+
+#[derive(Builder)]
+pub struct Struct {
+	#[builder(decay)]
+	x: Option<u8>,
+}
+
+fn main() {
+	// Use `4` of `Some(4)`
+	Struct::builder().x(4).build();
+}
+```
 
 # How does it work?
 
@@ -115,8 +174,71 @@ impl Builder<true, true> {
 }
 ```
 
+# More Examples
+
+### Lifetimes
+
+They work as expected
+
+```rust
+use typesafe_builders::prelude::*;
+
+#[derive(Builder)]
+pub struct Struct<'a, 'b, 'c> {
+	x: &'a Box<&'b Option<&'c str>>, // yikes
+}
+
+fn main() {
+	Struct::builder().x(&Box::new(&Some("hi"))).build();
+}
+```
+
+### Generics
+
+Works as expected, but does not yet support defaults.
+
+```rust
+mod other {
+	use typesafe_builders::prelude::*;
+
+	#[derive(Builder)]
+	pub struct Struct<T: Clone> {
+		y: Option<T>,
+	}
+}
+
+fn main() {
+	other::Struct::<u8>::builder().y(Some(4)).build();
+}
+```
+
+### Const Generics
+
+Works as expected, but does not yet support defaults.
+
+```rust
+mod other {
+	use typesafe_builders::prelude::*;
+
+	#[derive(Builder)]
+	pub struct Struct<const LEN: usize> {
+		x: [u8; LEN],
+	}
+}
+
+fn main() {
+	other::Struct::<1>::builder().x([1]).build();
+}
+```
+
 # TODOs
 
+- [x] Lifetimes
+- [x] Generics
+  - [x] Bounds
+  - [ ] With default
+- [x] Const generics
+  - [ ] With default
 - [x] Add `optional` fields.
 - [ ] Add `rename` field attribute.
 - [x] Add `constructor` or something like this to have mandatory args directly in the `builder` function.

@@ -1,0 +1,5 @@
+error: Builder does not work on unnamed fields
+ --> tests/ui/reject/tuple_struct.rs:4:19
+  |
+4 | pub struct Struct(pub u8);
+  |                   ^^^^^^
