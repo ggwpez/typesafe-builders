@@ -1,13 +1,13 @@
 [workspace.package]
 edition = "2021"
-version = "0.4.1"
+version = "0.5.0"
 authors = ["Oliver Tale-Yazdi <oliver@tasty.limo>"]
 license = "GPL-3.0-only"
 repository = "https://github.com/ggwpez/typesafe-builders"
 description = "Infallible compile-time checked builders for your structs."
 readme = "README.md"
 keywords = ["macros"]
-msrv = "1.65.0"
+rust-version = "1.65.0"
 
 [workspace]
 resolver = "2"
@@ -20,11 +20,8 @@ members = [
 
 [workspace.dependencies]
 # Internal deps
-typesafe-builders-core = { path = "typesafe-builders-core", version = "0.4.1" }
-typesafe-builders-derive = { path = "typesafe-builders-derive", version = "0.4.1" }
-
-# Only used for doc-tests, therefore one version behind:
-typesafe-builders = { path = "typesafe-builders", version = "0.4.0" }
+typesafe-builders-core = { path = "typesafe-builders-core", version = "0.5.0" }
+typesafe-builders-derive = { path = "typesafe-builders-derive", version = "0.5.0" }
 
 # External deps
 derive-syn-parse = { version = "0.1.5", default-features = false }

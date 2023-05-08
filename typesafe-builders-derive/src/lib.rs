@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#![doc = include_str!(env!("README_PATH"))]
+#![doc = include_str!("../README.md")]
 #![deny(unsafe_code)]
 
 extern crate proc_macro;
