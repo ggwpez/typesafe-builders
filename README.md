@@ -11,6 +11,10 @@
   <a href="https://crates.io/crates/typesafe-builders">
     <img src="https://img.shields.io/crates/v/typesafe-builders"/>
   </a>
+  <a href="https://docs.rs/crate/typesafe-builders">
+  	<img src="https://img.shields.io/docsrs/typesafe-builders"/>
+  </a>
+  <img src="https://img.shields.io/badge/MSRV-1.65-green"/>
   <a href="https://github.com/ggwpez/typesafe-builders/actions/workflows/rust.yml">
   	<img src="https://github.com/ggwpez/typesafe-builders/actions/workflows/rust.yml/badge.svg"/>
   </a>
