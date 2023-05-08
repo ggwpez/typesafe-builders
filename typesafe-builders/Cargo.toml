@@ -10,6 +10,8 @@ description.workspace = true
 readme.workspace = true
 keywords.workspace = true
 
+build = "build.rs"
+
 [dependencies]
 typesafe-builders-core.workspace = true
 typesafe-builders-derive.workspace = true

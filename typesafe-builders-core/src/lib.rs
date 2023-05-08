@@ -3,8 +3,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#![doc = include_str!(concat!("../", env!("CARGO_PKG_README")))]
+#![doc = include_str!(env!("README_PATH"))]
 #![allow(non_upper_case_globals)]
+#![deny(unsafe_code)]
 
 use quote::quote;
 use syn::spanned::Spanned;
@@ -64,7 +65,7 @@ pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::T
 		let (gimpl, galias) = extract_def(gen)?;
 		user_generics_impl.push(gimpl);
 		user_generics_alias.push(galias);
-	} 
+	}
 
 	let vis = ast.vis.clone();
 	let name = &ast.ident;
@@ -340,7 +341,7 @@ fn decay_type(t: &syn::Type) -> syn::Result<syn::Type> {
 
 	let last = p.path.segments.last().unwrap();
 	let syn::PathArguments::AngleBracketed(args) = &last.arguments else {
-		return Err(syn::Error::new(last.span(), "Expected one generic argument but got none"));
+		return Err(syn::Error::new(last.span(), "Can only decay generic types"));
 	};
 	// TODO check for not-time
 	if args.args.len() != 1 {
@@ -355,7 +356,9 @@ fn decay_type(t: &syn::Type) -> syn::Result<syn::Type> {
 	}
 }
 
-fn extract_def(gen: &syn::GenericParam) -> syn::Result<(proc_macro2::TokenStream, proc_macro2::TokenStream)> {
+fn extract_def(
+	gen: &syn::GenericParam,
+) -> syn::Result<(proc_macro2::TokenStream, proc_macro2::TokenStream)> {
 	Ok(match gen {
 		syn::GenericParam::Lifetime(lt) => {
 			let lifetime = &lt.lifetime;

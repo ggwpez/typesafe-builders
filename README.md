@@ -48,6 +48,34 @@ fn main() {
 }
 ```
 
+
+# Known Downside
+
+I can recommend this only for *internal use*. It is best to not expose these builder types as an API of your crate, since they look extremely ugly and verbose. For example:
+
+```rust
+use typesafe_builders::prelude::*;
+
+#[derive(Builder)]
+struct Point {
+	x: u8,
+	y: u8,
+	z: u8,
+}
+
+// Ugly type name here... and it only gets worse for const-generics etc.
+fn preset() -> GenericPointBuilder<false, false, true> {
+	Point::builder().z(0)
+}
+
+fn main() {
+	let partial = preset();
+	let point = partial.x(1).y(2).build();
+}
+```
+
+Please open an MR/Issue if you know how to improve this.
+
 ## Field Attributes
 
 Attributes can be combined. Ones that do not work together will throw an explicit error at compile time. Duplicates always error.
@@ -112,36 +140,6 @@ fn main() {
 }
 ```
 
-# Known Downside
-
-Although having everything known at compile time it nice - it comes at the cost of having verbose types in cases where that information needs to be passed on.  
-
-For example when you want to return a builder from a function, it normally looks like this:
-
-```rust
-use typesafe_builders::prelude::*;
-
-#[derive(Builder)]
-struct Point {
-	x: u8,
-	y: u8,
-	z: u8,
-}
-
-// Ugly type name here...
-fn preset() -> GenericPointBuilder<false, false, true> {
-	Point::builder().z(0)
-}
-
-fn main() {
-	// Luckily we dont need to type it here again:
-	let partial = preset();
-	let point = partial.x(1).y(2).build();
-}
-```
-
-Please open an MR/Issue if you know how to improve this.
-
 # How does it work?
 
 Const generic one-hot bitfields. What you get is similar to this:
@@ -193,12 +191,50 @@ fn main() {
 
 ### Generics
 
-TODO
+Works as expected, but does not yet support defaults.
+
+```rust
+mod other {
+	use typesafe_builders::prelude::*;
+
+	#[derive(Builder)]
+	pub struct Struct<T: Clone> {
+		y: Option<T>,
+	}
+}
+
+fn main() {
+	other::Struct::<u8>::builder().y(Some(4)).build();
+}
+```
+
+### Const Generics
+
+Works as expected, but does not yet support defaults.
+
+```rust
+mod other {
+	use typesafe_builders::prelude::*;
+
+	#[derive(Builder)]
+	pub struct Struct<const LEN: usize> {
+		x: [u8; LEN],
+	}
+}
+
+fn main() {
+	other::Struct::<1>::builder().x([1]).build();
+}
+```
 
 # TODOs
 
 - [x] Lifetimes
 - [x] Generics
+  - [x] Bounds
+  - [ ] With default
+- [x] Const generics
+  - [ ] With default
 - [x] Add `optional` fields.
 - [ ] Add `rename` field attribute.
 - [x] Add `constructor` or something like this to have mandatory args directly in the `builder` function.

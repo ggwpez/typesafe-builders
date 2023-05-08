@@ -1,4 +1,4 @@
-error: Expected one generic argument but got none
+error: Can only decay generic types
  --> tests/ui/reject/field_attr/decay/no_generic.rs:7:6
   |
 7 |         x: u8,
