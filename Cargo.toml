@@ -7,6 +7,7 @@ repository = "https://github.com/ggwpez/typesafe-builders"
 description = "Infallible compile-time checked builders for your structs."
 readme = "README.md"
 keywords = ["macros"]
+msrv = "1.65.0"
 
 [workspace]
 resolver = "2"
