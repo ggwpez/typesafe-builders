@@ -139,7 +139,7 @@ pub struct Struct {
 }
 
 fn main() {
-	// Use `4` instaed of `Some(4)`
+	// Use `4` instead of `Some(4)`
 	Struct::builder().x(4).build();
 }
 ```
