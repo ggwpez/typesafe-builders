@@ -120,7 +120,8 @@ pub struct Struct {
 
 fn main() {
 	Struct::builder(4).build();
-	// does not work:
+
+	// This does not compile since `x` is already set:
 	// Struct::builder(4).x(5).build();
 }
 ```
@@ -139,7 +140,7 @@ pub struct Struct {
 }
 
 fn main() {
-	// Use `4` instead of `Some(4)`
+	// You can use `4` now instead of `Some(4)`:
 	Struct::builder().x(4).build();
 }
 ```
