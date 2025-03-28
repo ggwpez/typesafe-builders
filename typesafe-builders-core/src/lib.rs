@@ -51,11 +51,8 @@ struct ParsedFieldAttr {
 
 pub fn impl_derive_builder(ast: &syn::DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
 	let syn::Data::Struct(ref s) = ast.data else {
-		return Err(syn::Error::new_spanned(
-			ast,
-			"derive(Builder) can only be used on structs",
-		));
-    };
+		return Err(syn::Error::new_spanned(ast, "derive(Builder) can only be used on structs"));
+	};
 	let mut user_generics_def = Vec::<&syn::GenericParam>::new();
 	let mut user_generics_impl = Vec::<proc_macro2::TokenStream>::new();
 	let mut user_generics_alias = Vec::<proc_macro2::TokenStream>::new();
