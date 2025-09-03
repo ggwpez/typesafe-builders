@@ -27,29 +27,27 @@ No more worrying whether the `build` call on your builder will return `Ok` or no
 ```rust
 use typesafe_builders::prelude::*;
 
-fn main() {
-	#[derive(Builder)]
-	struct Point {
-		#[builder(constructor)]
-		x: u8,
-		y: u8,
-		#[builder(optional)]
-		z: Option<u8>,
-	}
-
-	// `builder` requires `x` since it is marked as `constructor`.
-	let builder = Point::builder(1);
-	// These do not compile:
-	// partial.x(6); 		// `x` is already set
-	// partial.build();		// `y` is not set
-
-	// `build` is only available once all required fields are set:
-	let result = builder.y(2).build();
-
-	assert_eq!(result.x, 1);
-	assert_eq!(result.y, 2);
-	assert_eq!(result.z, None);
+#[derive(Builder)]
+struct Point {
+	#[builder(constructor)]
+	x: u8,
+	y: u8,
+	#[builder(optional)]
+	z: Option<u8>,
 }
+
+// `builder` requires `x` since it is marked as `constructor`.
+let builder = Point::builder(1);
+// These do not compile:
+// partial.x(6); 		// `x` is already set
+// partial.build();		// `y` is not set
+
+// `build` is only available once all required fields are set:
+let result = builder.y(2).build();
+
+assert_eq!(result.x, 1);
+assert_eq!(result.y, 2);
+assert_eq!(result.z, None);
 ```
 
 
@@ -97,12 +95,10 @@ pub struct Struct {
 	x: u8,
 }
 
-fn main() {
-	// without x
-	Struct::builder().build();
-	 // with x
-	Struct::builder().x(4).build();
-}
+// without x
+Struct::builder().build();
+	// with x
+Struct::builder().x(4).build();
 ```
 
 ### Constructor
@@ -118,11 +114,10 @@ pub struct Struct {
 	x: u8,
 }
 
-fn main() {
-	Struct::builder(4).build();
-	// does not work:
-	// Struct::builder(4).x(5).build();
-}
+Struct::builder(4).build();
+
+// This does not compile since `x` is already set:
+// Struct::builder(4).x(5).build();
 ```
 
 ### Decay
@@ -138,10 +133,8 @@ pub struct Struct {
 	x: Option<u8>,
 }
 
-fn main() {
-	// Use `4` instead of `Some(4)`
-	Struct::builder().x(4).build();
-}
+// You can use `4` now instead of `Some(4)`:
+Struct::builder().x(4).build();
 ```
 
 # How does it work?
@@ -188,9 +181,7 @@ pub struct Struct<'a, 'b, 'c> {
 	x: &'a Box<&'b Option<&'c str>>, // yikes
 }
 
-fn main() {
-	Struct::builder().x(&Box::new(&Some("hi"))).build();
-}
+Struct::builder().x(&Box::new(&Some("hi"))).build();
 ```
 
 ### Generics
@@ -207,9 +198,7 @@ mod other {
 	}
 }
 
-fn main() {
-	other::Struct::<u8>::builder().y(Some(4)).build();
-}
+other::Struct::<u8>::builder().y(Some(4)).build();
 ```
 
 ### Const Generics
@@ -226,9 +215,7 @@ mod other {
 	}
 }
 
-fn main() {
-	other::Struct::<1>::builder().x([1]).build();
-}
+other::Struct::<1>::builder().x([1]).build();
 ```
 
 # TODOs

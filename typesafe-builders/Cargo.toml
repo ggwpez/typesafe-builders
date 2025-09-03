@@ -18,4 +18,4 @@ typesafe-builders-core.workspace = true
 typesafe-builders-derive.workspace = true
 
 [dev-dependencies]
-trybuild = "1.0.80"
+trybuild = "1.0.90"

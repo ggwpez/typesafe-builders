@@ -7,5 +7,5 @@ error[E0603]: struct `Struct` is private
 note: the struct `Struct` is defined here
   --> tests/ui/reject/builder_priv.rs:5:2
    |
-5  |     struct Struct {
+ 5 |     struct Struct {
    |     ^^^^^^^^^^^^^

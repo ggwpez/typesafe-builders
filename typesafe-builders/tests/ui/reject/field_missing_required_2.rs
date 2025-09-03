@@ -1,6 +1,6 @@
-use typesafe_builders::prelude::*;
-
 //! `Option` is *not* treated as optional.
+
+use typesafe_builders::prelude::*;
 
 #[derive(Builder)]
 struct Struct {
